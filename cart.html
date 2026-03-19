@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shopping Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* ==================== GENERAL STYLES ==================== */
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+        
+        /* ==================== HEADER ==================== */
+        .top-header {
+            background: white;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-size: 22px; font-weight: bold; color: #0d6efd; text-decoration: none; }
+        
+        /* ==================== CART ITEMS ==================== */
+        .cart-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+            transition: transform 0.2s;
+        }
+        .cart-item img:hover { transform: scale(1.05); cursor: pointer; }
+        
+        .item-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 5px; }
+        .item-title a { color: inherit; text-decoration: none; }
+        .item-title a:hover { color: #0d6efd; }
+        
+        .item-price { font-size: 16px; font-weight: 700; color: #0d6efd; }
+
+        /* Quantity Selector */
+        .quantity-selector {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            background: #f9f9f9;
+        }
+        .quantity-selector button {
+            border: none;
+            background: none;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #333;
+        }
+        .quantity-selector input {
+            width: 30px;
+            text-align: center;
+            border: none;
+            border-left: 1px solid #eee;
+            border-right: 1px solid #eee;
+            height: 28px;
+            background: white;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* ==================== SUMMARY / COUPON SECTION ==================== */
+        .cart-summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            margin-bottom: 20px;
+        }
+        
+        /* Coupon Specifics */
+        .coupon-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px dashed #ced4da;
+        }
+
+        /* ==================== SIDEBAR CHECKOUT ==================== */
+        .sidebar-checkout-btn {
+            background-color: #0d6efd;
+            color: white;
+            font-weight: 700;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+        }
+        .sidebar-checkout-btn:hover { background-color: #0b5ed7; color: white; }
+
+        /* ==================== TRUST BADGES ==================== */
+        .trust-badges {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .badge-item { text-align: center; flex: 1; }
+        .badge-item i { font-size: 24px; color: #0d6efd; margin-bottom: 5px; }
+        .badge-item h6 { font-size: 13px; margin-top: 5px; font-weight: 700; }
+        .badge-item p { font-size: 11px; color: #888; margin: 0; }
+
+        /* ==================== SAVE FOR LATER ==================== */
+        .later-item {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #eee;
+            height: 100%;
+        }
+        .later-item img { width: 100%; height: 120px; object-fit: cover; margin-bottom: 10px; border-radius: 6px; }
+
+        /* ==================== DISCOUNT BANNER ==================== */
+        .discount {
+            background: linear-gradient(90deg, #1e6cff, #0d6efd);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            margin-bottom: 60px; /* ADDED: Space between banner and footer */
+        }
+        .discount h5 { font-weight: 700; margin-bottom: 5px; font-size: 18px; }
+        .discount p { opacity: 0.9; margin: 0; font-size: 14px; }
+
+        /* ==================== CART BADGE ICON ==================== */
+        .cart-badge {
+            position: relative;
+            top: -8px;
+            right: 5px;
+            background-color: #fa3434;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: -10px; /* Pull closer to icon */
+            vertical-align: top;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        /* ==================== BOTTOM NAVIGATION (MOBILE) ==================== */
+        .mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #eee;
+            display: none;
+            z-index: 1000;
+            height: 60px;
+        }
+        .nav-item-mobile {
+            flex: 1;
+            text-align: center;
+            padding-top: 8px;
+            color: #888;
+            text-decoration: none;
+            font-size: 12px;
+            position: relative;
+        }
+        .nav-item-mobile.active { color: #0d6efd; }
+        .nav-item-mobile i { display: block; font-size: 20px; margin-bottom: 4px; }
+        
+        /* Mobile Badge Position */
+        .mobile-bottom-nav .cart-badge {
+            position: absolute;
+            top: 5px;
+            right: 35%;
+            margin-left: 0;
+        }
+
+        /* ==================== FOOTER ==================== */
+        footer { 
+            background: white; 
+            padding: 50px 0; 
+            margin-top: 40px; 
+            border-top: 1px solid #eee; 
+        }
+        footer h6 { font-weight: 700; margin-bottom: 20px; }
+        footer ul { list-style: none; padding: 0; }
+        footer ul li { margin-bottom: 12px; font-size: 14px; color: #666; cursor: pointer; }
+        footer ul li:hover { color: #0d6efd; }
+        .social-icons-footer i { font-size: 20px; color: #666; margin-right: 15px; cursor: pointer; }
+        .app-img-placeholder { width: 130px; height: 40px; background: #000; border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; }
+
+        /* ==================== RESPONSIVENESS ==================== */
+        @media (max-width: 768px) {
+            .mobile-bottom-nav { display: flex; }
+            .footer-desktop { display: none !important; }
+            .trust-badges { margin-bottom: 20px; }
+            .cart-item img { width: 90px; height: 90px; }
+            
+            /* Make sidebar stack below main content on mobile */
+            .cart-row { flex-direction: column; }
+            .cart-sidebar { margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="top-header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="index.html"><img src="images/Brand/logo-colored.png" alt="Brand Logo" style="height: 40px;"></a>
+            <div class="d-md-none">
+                <a href="index.html" class="text-dark"><i class="fas fa-arrow-left fa-lg"></i></a>
+            </div>
+            <div class="icons d-none d-md-block">
+                <div class="dropdown" style="display: inline;">
+                    <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" style="margin-left:20px; text-decoration:none; color:#333;">
+                        <i class="fa fa-user"></i> Profile
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="profile.html">My Profile</a></li>
+                        <li><a class="dropdown-item" href="cart.html">My Cart</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#">Logout</a></li>
+                    </ul>
+                </div>
+                <a href="#" style="margin-left:20px; text-decoration:none; color:#333;"><i class="fa fa-message"></i> Messages</a>
+                <a href="cart.html" style="margin-left:20px; text-decoration:none; color:#333;"><i class="fa fa-shopping-cart"></i><span class="cart-badge">0</span> Cart</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <div class="container mt-4">
+            <h4 class="mb-4">My Cart (<span id="cart-count">0</span>)</h4>
+            
+            <div class="row cart-row">
+                <!-- LEFT SIDE: Cart Items -->
+                <div class="col-lg-8">
+                    <div id="cart-items-container"></div>
+
+                    <!-- Controls -->
+                    <div class="d-flex justify-content-between mt-3 mb-4">
+                        <a href="index.html" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i> Back to shop</a>
+                        <button class="btn btn-outline-danger" onclick="removeAllItems()"><i class="fas fa-trash me-2"></i> Remove all</button>
+                    </div>
+
+                    <!-- Trust Badges -->
+                    <div class="trust-badges">
+                        <div class="badge-item border-end"><i class="fas fa-lock"></i><h6>Secure Payment</h6><p>100% Secure</p></div>
+                        <div class="badge-item border-end"><i class="fas fa-headset"></i><h6>Customer Support</h6><p>24/7 Support</p></div>
+                        <div class="badge-item"><i class="fas fa-truck"></i><h6>Free Delivery</h6><p>On order $50+</p></div>
+                    </div>
+
+                    <!-- Save for Later Section -->
+                    <section class="mt-5">
+                        <h5 class="mb-3">Saved for later (<span id="later-count">0</span>)</h5>
+                        <div class="row g-3" id="later-items-container"></div>
+                    </section>
+
+                    <!-- DISCOUNT BANNER -->
+                    <div class="discount">
+                        <div>
+                            <h5>Super discount on more than 100 USD</h5>
+                            <p>Have you ever finally just write dummy info</p>
+                        </div>
+                        <a href="productlisting.html" class="btn btn-warning">Shop now</a>
+                    </div>
+                </div>
+
+                <!-- RIGHT SIDE: Sidebar Checkout -->
+                <aside class="col-lg-4 cart-sidebar">
+                    <div class="cart-summary-card" style="position: sticky; top: 80px;">
+                        
+                        <!-- COUPON SECTION -->
+                        <div class="coupon-section">
+                            <h6 class="mb-2"><i class="fas fa-ticket-alt me-2 text-primary"></i>Have a coupon?</h6>
+                            <div class="input-group">
+                                <input type="text" id="coupon-input" class="form-control" placeholder="Enter code">
+                                <button class="btn btn-primary" onclick="applyCoupon()">Apply</button>
+                            </div>
+                            <div id="coupon-message" class="mt-2 small"></div>
+                        </div>
+
+                        <!-- ORDER SUMMARY -->
+                        <h6 class="mb-3 text-uppercase text-muted">Order Summary</h6>
+                        <div class="d-flex justify-content-between mb-2"><span>Subtotal</span><span id="summary-subtotal">$0.00</span></div>
+                        <div class="d-flex justify-content-between mb-2 text-success"><span>Discount</span><span id="summary-discount">-$0.00</span></div>
+                        <div class="d-flex justify-content-between mb-2"><span>Tax</span><span id="summary-tax">$0.00</span></div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold h5"><span>Total</span><span id="summary-total">$0.00</span></div>
+                        
+                        <!-- CHECKOUT BUTTON -->
+                        <button class="sidebar-checkout-btn mt-3" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+                            <i class="fas fa-lock me-2"></i>CHECKOUT
+                        </button>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted d-block mb-2">We accept:</small>
+                            <div>
+                                <i class="fab fa-cc-visa fa-2x text-muted"></i>
+                                <i class="fab fa-cc-mastercard fa-2x text-muted"></i>
+                                <i class="fab fa-cc-paypal fa-2x text-muted"></i>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="mobile-bottom-nav">
+        <a href="index.html" class="nav-item-mobile">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item-mobile">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </a>
+        <a href="cart.html" class="nav-item-mobile active">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge">0</span>
+            <span>Cart</span>
+        </a>
+        <a href="profile.html" class="nav-item-mobile">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- CHECKOUT MODAL -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="checkoutModalLabel"><i class="fas fa-shopping-bag me-2"></i>Checkout Procedure</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="checkout-form">
+                        <h6 class="mb-3 text-primary">Shipping Address</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" placeholder="John Doe" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" class="form-control" placeholder="+1 234 567 890" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Address</label>
+                                <input type="text" class="form-control" placeholder="1234 Main St" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-control" placeholder="New York" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">State</label>
+                                <input type="text" class="form-control" placeholder="NY" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Zip Code</label>
+                                <input type="text" class="form-control" placeholder="10001" required>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3 text-primary">Payment Method</h6>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Card Number</label>
+                                <input type="text" class="form-control" placeholder="XXXX-XXXX-XXXX-XXXX" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Expiration Date</label>
+                                <input type="text" class="form-control" placeholder="MM/YY" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">CVV</label>
+                                <input type="text" class="form-control" placeholder="123" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="processOrder()"><i class="fas fa-check me-2"></i>Place Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2 mb-4">
+                    <img src="images/Brand/logo-colored.png" alt="Brand Logo" style="width: 120px; margin-bottom: 15px;">
+                    <p class="text-muted small">Best information about the company goes here.</p>
+                    <div class="social-icons-footer"><i class="fab fa-linkedin"></i><i class="fab fa-youtube"></i><i class="fab fa-instagram"></i><i class="fab fa-facebook-f"></i><i class="fab fa-twitter"></i></div>
+                </div>
+                <div class="col-md-2 col-6 mb-4"><h6>About</h6><ul><li>About us</li><li>Find store</li><li>Categories</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Partnership</h6><ul><li>Become a Partner</li><li>Affiliates</li><li>Advertise</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Information</h6><ul><li>Help center</li><li>Money refund</li><li>Shipping</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Users</h6><ul><li>Login</li><li>Register</li><li>Settings</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Get App</h6><a href="#" class="d-block mb-2"><img src="images/Misc/market-button.png" class="app-img-placeholder" alt="App Store"></a><a href="#" class="d-block"><img src="images/Misc/Group.png" class="app-img-placeholder" alt="Google Play"></a></div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center pb-3"><p class="mb-0 text-muted small">© 2023 Ecommerce Website</p></div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ==================== DATA LOADING & SANITIZATION ====================
+        
+        // Helper: Format number as USD Currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+            }).format(amount);
+        }
+
+        // Helper: Extract numeric price from string/object/number
+        function getNumericPrice(val) {
+            if (val === null || val === undefined) return 0;
+            if (typeof val === 'number') return val;
+            
+            // If it's an object (rare error case), return 0
+            if (typeof val === 'object') return 0;
+            
+            // Clean string: remove $, commas, and non-numeric chars (except dot)
+            const cleanVal = String(val).replace(/[^0-9.]/g, '');
+            const num = parseFloat(cleanVal);
+            
+            return isNaN(num) ? 0 : num;
+        }
+
+        // Helper: Ensure quantity is a valid number
+        function getValidQty(qty) {
+            const num = parseInt(qty);
+            return isNaN(num) || num < 1 ? 1 : num;
+        }
+
+        // Load and sanitize data immediately
+        let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+        let laterItems = JSON.parse(localStorage.getItem('later')) || [];
+        let appliedDiscount = 0; 
+
+        // Clean data on load to prevent NaN errors
+        cartItems = cartItems.map(item => ({
+            ...item,
+            price: getNumericPrice(item.price),
+            qty: getValidQty(item.qty)
+        }));
+
+        laterItems = laterItems.map(item => ({
+            ...item,
+            price: getNumericPrice(item.price),
+            qty: getValidQty(item.qty)
+        }));
+
+        const cartContainer = document.getElementById('cart-items-container');
+        const laterContainer = document.getElementById('later-items-container');
+
+        // ==================== UI UPDATE FUNCTIONS ====================
+
+        function updateCartBadge() {
+            const totalQty = cartItems.reduce((sum, item) => sum + item.qty, 0);
+            
+            // Desktop Header Badge
+            const desktopBadge = document.querySelector('.icons .cart-badge');
+            if (desktopBadge) {
+                desktopBadge.innerText = totalQty;
+                desktopBadge.style.display = totalQty > 0 ? 'inline-block' : 'none';
+            }
+            
+            // Mobile Nav Badge
+            const mobileBadge = document.querySelector('.mobile-bottom-nav .cart-badge');
+            if (mobileBadge) {
+                mobileBadge.innerText = totalQty;
+                mobileBadge.style.display = totalQty > 0 ? 'inline-block' : 'none';
+            }
+        }
+
+        function renderCart() {
+            cartContainer.innerHTML = '';
+            
+            if (cartItems.length === 0) {
+                cartContainer.innerHTML = `
+                    <div class="alert alert-info text-center py-5">
+                        <i class="fas fa-box-open fa-3x mb-3 d-block"></i>
+                        Your cart is empty. 
+                        <a href="index.html" class="d-block mt-2">Go shopping</a>
+                    </div>`;
+            } else {
+                cartItems.forEach((item, index) => {
+                    const subtotal = item.price * item.qty;
+                    const itemLink = `productdetail.html?id=${item.id || index}`;
+
+                    cartContainer.innerHTML += `
+                        <article class="cart-item d-flex gap-3">
+                            <a href="${itemLink}"><img src="${item.img || 'https://via.placeholder.com/80'}" alt="${item.name}"></a>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="item-title"><a href="${itemLink}">${item.name}</a></h6>
+                                    <button class="btn btn-sm text-muted p-0" onclick="removeItem(${index})"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mt-2">
+                                    <div class="quantity-selector">
+                                        <button onclick="changeQty(${index}, -1)">-</button>
+                                        <input type="text" value="${item.qty}" readonly>
+                                        <button onclick="changeQty(${index}, 1)">+</button>
+                                    </div>
+                                    <div class="item-price">${formatCurrency(subtotal)}</div>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-link text-decoration-none text-secondary p-0 small" onclick="saveForLater(${index})">
+                                        <i class="far fa-heart"></i> Save for later
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                });
+            }
+            
+            document.getElementById('cart-count').innerText = cartItems.length;
+            updateTotals();
+            updateCartBadge(); 
+        }
+
+        function renderLater() {
+            laterContainer.innerHTML = '';
+            if (laterItems.length === 0) {
+                laterContainer.innerHTML = '<div class="col-12 text-center text-muted py-4">No items saved for later.</div>';
+            } else {
+                laterItems.forEach((item, index) => {
+                    const itemLink = `productdetail.html?id=${item.id || index}`;
+
+                    laterContainer.innerHTML += `
+                        <div class="col-6 col-md-3">
+                            <div class="later-item">
+                                <a href="${itemLink}"><img src="${item.img || 'https://via.placeholder.com/120'}" alt="${item.name}"></a>
+                                <p class="fw-bold mb-0 small">${item.name}</p>
+                                <small class="text-primary fw-bold d-block mb-2">${formatCurrency(item.price)}</small>
+                                <button class="btn btn-sm btn-outline-primary w-100" onclick="moveToCart(${index})">
+                                    <i class="fas fa-cart-plus me-1"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('later-count').innerText = laterItems.length;
+        }
+
+        function updateTotals() {
+            let subtotal = 0;
+            cartItems.forEach(i => {
+                subtotal += i.price * i.qty;
+            });
+
+            const tax = subtotal * 0.05;
+            const total = subtotal - appliedDiscount + tax;
+            
+            document.getElementById('summary-subtotal').innerText = formatCurrency(subtotal);
+            document.getElementById('summary-tax').innerText = formatCurrency(tax);
+            document.getElementById('summary-discount').innerText = '-' + formatCurrency(appliedDiscount);
+            document.getElementById('summary-total').innerText = formatCurrency(total);
+        }
+
+        // ==================== ACTIONS ====================
+
+        function applyCoupon() {
+            const input = document.getElementById('coupon-input');
+            const code = input.value.trim().toUpperCase();
+            const msgDiv = document.getElementById('coupon-message');
+
+            appliedDiscount = 0;
+
+            if (code === "DISCOUNT10") {
+                appliedDiscount = 10;
+                msgDiv.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> Coupon applied! $10 off.</span>';
+            } else if (code === "SAVE5") {
+                appliedDiscount = 5;
+                msgDiv.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> Coupon applied! $5 off.</span>';
+            } else {
+                msgDiv.innerHTML = '<span class="text-danger">Invalid coupon code.</span>';
+            }
+            updateTotals();
+        }
+
+        function processOrder() {
+            const form = document.getElementById('checkout-form');
+            if (!form.checkValidity()) { 
+                form.reportValidity(); 
+                return; 
+            }
+
+            cartItems = [];
+            appliedDiscount = 0;
+            saveCart();
+            updateCartBadge(); 
+            
+            const modalEl = document.getElementById('checkoutModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            document.getElementById('cart-items-container').innerHTML = `
+                <div class="alert alert-success text-center mt-5">
+                    <i class="fas fa-check-circle fa-3x mb-3"></i>
+                    <h4>Thank you!</h4>
+                    <p>Order placed successfully.</p>
+                    <a href="index.html" class="btn btn-primary mt-3">Continue Shopping</a>
+                </div>`;
+            document.getElementById('cart-count').innerText = "0";
+            updateTotals();
+        }
+
+        function changeQty(index, change) {
+            let currentQty = cartItems[index].qty;
+            let newQty = currentQty + change;
+            
+            if (newQty < 1) newQty = 1;
+            
+            cartItems[index].qty = newQty;
+            saveCart();
+            renderCart();
+        }
+
+        function removeItem(index) { 
+            cartItems.splice(index, 1); 
+            saveCart(); 
+            renderCart(); 
+        }
+        
+        function removeAllItems() { 
+            if(confirm('Are you sure you want to remove all items?')) {
+                cartItems = []; 
+                saveCart(); 
+                renderCart(); 
+            }
+        }
+        
+        function saveForLater(index) {
+            const item = cartItems.splice(index, 1)[0];
+            laterItems.push(item);
+            saveCart(); 
+            saveLater();
+            renderCart(); 
+            renderLater();
+        }
+        
+        function moveToCart(index) {
+            const item = laterItems.splice(index, 1)[0];
+            cartItems.push(item);
+            saveCart(); 
+            saveLater();
+            renderCart(); 
+            renderLater();
+        }
+        
+        function saveCart() { 
+            localStorage.setItem('cart', JSON.stringify(cartItems)); 
+        }
+        
+        function saveLater() { 
+            localStorage.setItem('later', JSON.stringify(laterItems)); 
+        }
+
+        // ==================== INITIALIZE ====================
+        renderCart();
+        renderLater();
+        updateCartBadge(); 
+    </script>
+</body>
+</html>

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ==================== GENERAL STYLES ==================== */
+        :root {
+            --primary-color: #0d6efd; --primary-dark: #0a58ca; --secondary-color: #667eea; --accent-color: #fa3434;
+            --text-dark: #1a202c; --text-gray: #718096; --bg-light: #f7fafc; --border-color: #e2e8f0;
+        }
+        body { font-family: 'Inter', sans-serif; background: #f7fafc; color: var(--text-dark); font-size: 15px; line-height: 1.6; }
+        
+        /* ==================== HEADER & NAV ==================== */
+        .top-header { background: white; padding: 15px 0; border-bottom: 1px solid var(--border-color); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); }
+        .logo { font-size: 24px; font-weight: 800; color: var(--primary-color); text-decoration: none; letter-spacing: -0.5px; }
+        .header-icons a { margin-left: 20px; text-decoration: none; color: var(--text-gray) !important; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; transition: color 0.2s; }
+        .header-icons a i { margin-right: 6px; font-size: 16px; }
+        .header-icons a:hover { color: var(--primary-color) !important; }
+        .navbar { background: white; border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .nav-link { color: var(--text-gray); font-weight: 500; padding: 12px 15px !important; transition: color 0.2s; }
+        .nav-link:hover { color: var(--primary-color); }
+        
+        /* ==================== BREADCRUMB ==================== */
+        .breadcrumb-section { background: white; padding: 15px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 30px; }
+        .breadcrumb-section a { color: var(--primary-color); text-decoration: none; font-size: 14px; font-weight: 500; }
+        .breadcrumb-section span { color: #cbd5e0; margin: 0 10px; }
+        .breadcrumb-section .current { color: var(--text-dark); font-weight: 600; }
+
+        /* ==================== PRODUCT DETAILS ==================== */
+        .product-box { background: white; border-radius: 12px; border: none; padding: 40px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.04); }
+        .product-image-wrapper { position: relative; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; margin-bottom: 20px; transition: box-shadow 0.3s; }
+        .product-image-wrapper:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .product-image { width: 100%; height: 480px; object-fit: contain; padding: 30px; }
+        .btn-wishlist { position: absolute; top: 20px; right: 20px; z-index: 10; background: white; border: none; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s; }
+        .btn-wishlist i { color: #cbd5e0; font-size: 20px; transition: all 0.3s; }
+        .btn-wishlist:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+        .btn-wishlist:hover i, .btn-wishlist.active i { color: var(--accent-color); }
+        .thumb { display: flex; gap: 15px; justify-content: center; }
+        .thumb img { width: 80px; height: 80px; object-fit: cover; border: 2px solid transparent; cursor: pointer; border-radius: 10px; transition: all 0.3s; padding: 3px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .thumb img:hover { border-color: #cbd5e0; transform: translateY(-2px); }
+        .thumb img.active { border-color: var(--primary-color); box-shadow: 0 4px 10px rgba(13, 110, 253, 0.15); }
+        
+        .product-title { font-size: 28px; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; line-height: 1.3; letter-spacing: -0.5px; }
+        .rating-box { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; background: var(--bg-light); padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .rating-box .stars { color: #f6ad55; font-size: 16px; }
+        .rating-box .info { font-size: 14px; color: var(--text-gray); }
+        .rating-box .info b { color: var(--text-dark); }
+        .stock-badge { display: inline-block; background: #c6f6d5; color: #22543d; padding: 6px 16px; border-radius: 50px; font-size: 13px; font-weight: 600; margin-bottom: 20px; letter-spacing: 0.3px; }
+        
+        /* ==================== PRICE BOX ==================== */
+        .price-box { background: white; border-radius: 10px; padding: 25px; margin: 25px 0; border: 1px solid var(--border-color); position: relative; background: linear-gradient(to right, #fffaf0, #fff); }
+        .price-box::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(to bottom, #f6ad55, #ed8936); border-radius: 10px 0 0 10px; }
+        .price-box .col { text-align: center; border-right: 1px solid var(--border-color); padding: 5px 10px; }
+        .price-box .col:last-child { border-right: none; }
+        .price-box h6 { font-weight: 700; color: var(--text-dark); margin-bottom: 5px; font-size: 18px; }
+        .price-box small { display: block; margin-top: 0; color: var(--text-gray); font-size: 12px; font-weight: 500; }
+        .price-main { color: var(--accent-color); }
+        
+        .details-table { margin-top: 25px; width: 100%; border-collapse: collapse; }
+        .details-table td { padding: 16px 15px; border-bottom: 1px solid #f1f5f9; transition: background 0.2s; }
+        .details-table tr:last-child td { border-bottom: none; }
+        .details-table tr:hover td { background: #f8fafc; }
+        .details-table td:first-child { width: 40%; color: var(--text-gray); font-weight: 600; font-size: 14px; background: transparent; }
+        .details-table td:last-child { color: var(--text-dark); font-weight: 500; }
+        
+        .btn-add-cart { background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; font-weight: 600; padding: 16px; border-radius: 8px; border: none; font-size: 16px; letter-spacing: 0.2px; box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3); transition: all 0.3s; }
+        .btn-add-cart:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4); background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)); }
+
+        /* ==================== SIDEBAR ==================== */
+        .sidebar-card { background: white; border-radius: 12px; padding: 25px; margin-bottom: 25px; border: 1px solid var(--border-color); transition: box-shadow 0.3s; }
+        .sidebar-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .sidebar-card h6 { font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--text-dark); border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+        .sidebar-card p { font-size: 14px; margin-bottom: 5px; color: var(--text-gray); line-height: 1.6; }
+
+        /* ==================== TABS ==================== */
+        .nav-tabs { border-bottom: 2px solid var(--border-color); background: transparent; border-radius: 0; }
+        .nav-tabs .nav-link { border: none; color: var(--text-gray); font-weight: 600; padding: 14px 25px; font-size: 15px; background: transparent; position: relative; }
+        .nav-tabs .nav-link.active { color: var(--primary-color); border: none; background: transparent; }
+        .nav-tabs .nav-link.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 3px; background: var(--primary-color); border-radius: 4px 4px 0 0; }
+        .tab-content { padding: 30px; border: 1px solid var(--border-color); border-top: none; background: white; border-radius: 0 0 12px 12px; font-size: 15px; }
+        
+        /* ==================== RELATED PRODUCTS ==================== */
+        .section-title { font-size: 22px; font-weight: 700; margin-bottom: 25px; color: var(--text-dark); }
+        .related-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 25px; padding-bottom: 20px; }
+        .product-card { min-width: 230px; flex: 0 0 auto; background: white; border-radius: 10px; border: 1px solid var(--border-color); overflow: hidden; transition: all 0.3s; text-decoration: none; color: inherit; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.08); border-color: transparent; }
+        .product-card img { width: 100%; height: 200px; object-fit: contain; background: #f8fafc; padding: 20px; }
+        .product-card .card-body { padding: 20px; }
+        .product-card .card-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+        .product-card .card-price { font-size: 18px; font-weight: 700; color: var(--accent-color); }
+        .product-card .shipping-badge { font-size: 12px; color: #38a169; margin-top: 10px; display: flex; align-items: center; gap: 4px; font-weight: 600; }
+        
+        .you-may-like-item { display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .you-may-like-item:last-child { border-bottom: none; margin-bottom: 0; }
+        .you-may-like-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
+        .you-may-like-item .title { display: block; font-weight: 600; color: var(--text-dark); font-size: 14px; }
+        .you-may-like-item .price { display: block; color: var(--accent-color); font-weight: 700; font-size: 14px; margin-top: 4px; }
+
+        /* ==================== DISCOUNT BANNER ==================== */
+        .discount {
+            background: linear-gradient(90deg, #1e6cff, #0d6efd);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 50px;
+            margin-bottom: 60px;
+            box-shadow: 0 10px 25px rgba(13, 110, 253, 0.2);
+        }
+        .discount h5 { font-weight: 700; margin-bottom: 5px; font-size: 20px; }
+        .discount p { opacity: 0.9; margin: 0; font-size: 15px; }
+        .discount .btn-warning {
+            background-color: #fff;
+            color: #0d6efd;
+            font-weight: 700;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            transition: transform 0.2s;
+        }
+        .discount .btn-warning:hover {
+            transform: translateY(-2px);
+            background-color: #f8f9fa;
+        }
+
+        /* ==================== FOOTER ==================== */
+        footer { background: white; padding: 60px 0; border-top: 1px solid var(--border-color); }
+        footer h6 { font-weight: 700; margin-bottom: 25px; color: var(--text-dark); font-size: 16px; }
+        footer ul { list-style: none; padding: 0; }
+        footer ul li { margin-bottom: 12px; font-size: 14px; color: var(--text-gray); cursor: pointer; transition: color 0.2s; }
+        footer ul li:hover { color: var(--primary-color); padding-left: 3px; }
+        .social-icons-footer i { font-size: 18px; color: #a0aec0; margin-right: 15px; cursor: pointer; transition: color 0.3s; }
+        .social-icons-footer i:hover { color: var(--primary-color); }
+        .app-img-placeholder { width: 130px; height: 38px; background: #1a202c; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; }
+
+        /* ==================== MOBILE BOTTOM NAVIGATION (ADDED) ==================== */
+        .mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #eee;
+            display: none; /* Hidden on desktop */
+            z-index: 1000;
+            height: 60px;
+        }
+        .nav-item-mobile {
+            flex: 1;
+            text-align: center;
+            padding-top: 8px;
+            color: #888;
+            text-decoration: none;
+            font-size: 12px;
+            position: relative;
+        }
+        .nav-item-mobile.active { color: #0d6efd; }
+        .nav-item-mobile i { display: block; font-size: 20px; margin-bottom: 4px; }
+        .cart-badge {
+            position: absolute;
+            top: 5px;
+            right: 30%;
+            background-color: #fa3434;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 5px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        /* ==================== RESPONSIVENESS (MODIFIED) ==================== */
+        @media (max-width: 768px) { 
+            /* Activation of Mobile Nav */
+            .mobile-bottom-nav { display: flex; }
+            body { padding-bottom: 70px; } /* Space for bottom nav */
+
+            /* Layout Adjustments */
+            .product-image { height: 350px; } 
+            .product-title { font-size: 22px; } 
+            .product-card { min-width: 180px; } 
+            .product-box { padding: 20px; }
+            
+            /* Hide Desktop Elements */
+            .top-header .input-group { display: none !important; }
+            .navbar { display: none !important; }
+
+            /* Stack Columns */
+            .product-box > .row { flex-direction: column; }
+            .product-box > .row > div { width: 100%; margin-bottom: 20px; }
+            /* Move Sidebar to bottom on mobile */
+            .col-lg-3 { order: 3; margin-top: 30px; }
+
+            /* Discount & Footer */
+            .discount { flex-direction: column; text-align: center; padding: 25px; }
+            .discount .btn-warning { margin-top: 20px; }
+            footer { padding-bottom: 80px; } /* Extra padding for nav */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="top-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <!-- CHANGE: Replaced text "Brand" with logo image -->
+                <div class="col-md-2 col-6"><a href="index.html"><img src="images/Brand/logo-colored.png" alt="Brand Logo" style="height: 40px;"></a></div>
+                <div class="col-md-6 d-none d-md-block"><div class="input-group"><input type="text" class="form-control" placeholder="Search"><select class="form-select" style="max-width:150px;"><option>All category</option></select><button class="btn btn-primary">Search</button></div></div>
+                <div class="col-md-4 col-6 text-end"><div class="header-icons"><a href="profile.html"><i class="fa fa-user"></i> Profile</a><a href="#"><i class="fa fa-envelope"></i> Message</a><a href="#"><i class="fa fa-box"></i> Orders</a><a href="cart.html"><i class="fa fa-shopping-cart"></i> Cart</a></div></div>
+            </div>
+        </div>
+    </header>
+    <nav class="navbar navbar-expand-lg"><div class="container d-flex justify-content-between"><ul class="navbar-nav"><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">☰ All category</a><ul class="dropdown-menu"><li><a class="dropdown-item" href="#">Automobiles</a></li><li><a class="dropdown-item" href="#">Clothes</a></li></ul></li><li class="nav-item"><a class="nav-link" href="#">Hot offers</a></li><li class="nav-item"><a class="nav-link" href="#">Gift boxes</a></li><li class="nav-item"><a class="nav-link" href="#">Projects</a></li><li class="nav-item"><a class="nav-link" href="#">Help</a></li></ul><div class="d-flex align-items-center"><div class="dropdown me-3"><a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">English, USD</a><ul class="dropdown-menu"><li><a class="dropdown-item" href="#">English</a></li></ul></div><div class="dropdown"><a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Ship to 🇩🇪</a><ul class="dropdown-menu"><li><a class="dropdown-item" href="#">Germany</a></li></ul></div></div></div></nav>
+    <div class="breadcrumb-section"><div class="container"><a href="index.html">Home</a> <span>></span><a href="productlisting.html">Clothing</a> <span>></span><a href="productlisting.html">Men's Wear</a> <span>></span><span class="current" id="breadcrumb-name">Product Name</span></div></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="mt-4">
+        <div class="container">
+            <div class="product-box">
+                <div class="row">
+                    <div class="col-lg-5 col-md-6">
+                        <div class="product-image-wrapper"><button class="btn-wishlist" onclick="addToWishlist()"><i class="far fa-heart"></i></button><img id="mainImg" src="images/clothes/Bitmap.png" class="product-image" alt="Main Product Image"></div>
+                        <div class="thumb"><img id="thumb1" src="images/clothes/t1.jpg" onclick="changeImg(this)" class="active" alt="Thumbnail 1"><img id="thumb2" src="images/clothes/t2.jpg" onclick="changeImg(this)" alt="Thumbnail 2"><img id="thumb3" src="images/clothes/t3.jpg" onclick="changeImg(this)" alt="Thumbnail 3"><img id="thumb4" src="images/clothes/t4.jpg" onclick="changeImg(this)" alt="Thumbnail 4"></div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mt-4 mt-md-0">
+                        <span class="stock-badge"><i class="fas fa-check-circle me-1"></i> In stock</span>
+                        <h1 id="product-name" class="product-title mt-2">Loading...</h1>
+                        <div class="rating-box"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div><div class="info"><b id="review-count">32 reviews</b> | <span id="sold-count">154 sold</span></div></div>
+                        <div class="price-box"><div class="row"><div class="col"><h6 id="product-price" class="price-main">$0.00</h6><small id="tier1">1-49 pcs</small></div><div class="col"><h6 id="price-tier2">$0.00</h6><small id="tier2">50-100 pcs</small></div><div class="col"><h6 id="price-tier3">$0.00</h6><small id="tier3">100+ pcs</small></div></div></div>
+                        <table class="details-table">
+                            <tr><td>Type</td><td id="prod-type">-</td></tr><tr><td>Material</td><td id="prod-material">-</td></tr><tr><td>Design</td><td id="prod-design">-</td></tr><tr><td>Customization</td><td id="prod-custom">-</td></tr><tr><td>Protection</td><td id="prod-protection">-</td></tr><tr><td>Warranty</td><td id="prod-warranty">-</td></tr>
+                        </table>
+                        <button class="btn btn-add-cart w-100 mt-4" onclick="addToCart()"><i class="fas fa-shopping-cart me-2"></i>Add to Cart</button>
+                    </div>
+                    <div class="col-lg-3 mt-4 mt-lg-0">
+                        <div class="sidebar-card"><h6>Supplier</h6><p class="mb-1"><b id="supplier-name">-</b></p><p class="mb-2 small text-muted"><i class="fas fa-map-marker-alt me-1"></i> <span id="supplier-location">-</span></p><p class="text-success mb-3 small"><i class="fas fa-shield-alt me-1"></i> <span id="supplier-status">-</span></p><button class="btn btn-primary w-100 btn-sm mb-2">Send inquiry</button><button class="btn btn-outline-secondary w-100 btn-sm">Seller's profile</button></div>
+                        
+                        <!-- YOU MAY LIKE SECTION -->
+                        <div class="sidebar-card you-may-like">
+                            <h6>You may like</h6>
+                            <a href="productdetail.html?name=Men%20Blazer" class="you-may-like-item text-decoration-none">
+                                <img src="images/clothes/image 30.png" alt="Men Blazer"><div><span class="title">Men Blazer</span><span class="price">$7.00</span></div>
+                            </a>
+                            <a href="productdetail.html?name=Men%20Shirt" class="you-may-like-item text-decoration-none">
+                                <img src="images/clothes/Bitmap.png" alt="Men Shirt"><div><span class="title">Men Shirt</span><span class="price">$12.50</span></div>
+                            </a>
+                             <a href="productdetail.html?name=Brown%20winter%20coat" class="you-may-like-item text-decoration-none">
+                                <img src="images/clothes/2 1.png" alt="Winter Coat"><div><span class="title">Winter Coat</span><span class="price">$12.50</span></div>
+                            </a>
+                             <a href="productdetail.html?name=Bagpack" class="you-may-like-item text-decoration-none">
+                                <img src="images/clothes/image 26.png" alt="Bagpack"><div><span class="title">Bag Pack</span><span class="price">$12.50</span></div>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABS SECTION -->
+        <div class="container mt-4">
+            <ul class="nav nav-tabs"><li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#desc">Description</button></li><li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reviews">Reviews</button></li><li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#shipping">Shipping</button></li><li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#seller-tab">About seller</button></li></ul>
+            <div class="tab-content"><div class="tab-pane fade show active" id="desc"><div id="tab-desc">-</div></div><div class="tab-pane fade" id="reviews"><div id="tab-reviews">-</div></div><div class="tab-pane fade" id="shipping"><div id="tab-shipping">-</div></div><div class="tab-pane fade" id="seller-tab"><div id="tab-seller">-</div></div></div>
+        </div>
+
+        <!-- RELATED PRODUCTS -->
+        <section class="container related-section">
+            <div class="section-title">Related products</div>
+            <div class="related-row">
+                <a href="productdetail.html?id=1" class="product-card">
+                    <img src="images/tech/8.png" alt="Smart Watch"><div class="card-body"><div class="card-title">Smart Watch</div><div class="card-price">$10.30</div><div class="shipping-badge"><i class="fas fa-truck"></i> Free Shipping</div></div>
+                </a>
+                <a href="productdetail.html?id=6" class="product-card">
+                    <img src="images/tech/image 86.png" alt="Headphones"><div class="card-body"><div class="card-title">Headphones</div><div class="card-price">$8.99</div><div class="shipping-badge"><i class="fas fa-truck"></i> Free Shipping</div></div>
+                </a>
+                <a href="productdetail.html?name=T-shirt%20for%20men" class="product-card">
+                    <img src="images/clothes/Bitmap.png" alt="T-shirt for men"><div class="card-body"><div class="card-title">T-shirt for men</div><div class="card-price">$10.30</div><div class="shipping-badge"><i class="fas fa-truck"></i> Free Shipping</div></div>
+                </a>
+                 <a href="productdetail.html?name=Jeans%20for%20men" class="product-card">
+                    <img src="images/clothes/Bitmap (2).png" alt="Jeans for men"><div class="card-body"><div class="card-title">Jeans for men</div><div class="card-price">$12.50</div><div class="shipping-badge"><i class="fas fa-truck"></i> Free Shipping</div></div>
+                </a>
+                <a href="productdetail.html?name=Appliances" class="product-card">
+                    <img src="images/interior/7.png" alt="Home appliances"><div class="card-body"><div class="card-title">Home appliances</div><div class="card-price">$99.00</div><div class="shipping-badge"><i class="fas fa-truck"></i> Free Shipping</div></div>
+                </a>
+                <a href="productdetail.html?name=Lamp" class="product-card">
+                    <img src="images/interior/6.png" alt="Lamp"><div class="card-body"><div class="card-title">Lamp</div><div class="card-price">$45.00</div><div class="shipping-badge"><i class="fas fa-truck"></i> Free Shipping</div></div>
+                </a>
+            </div>
+        </section>
+
+        <!-- DISCOUNT BANNER (Above Footer) -->
+        <div class="container">
+            <div class="discount">
+                <div>
+                    <h5>Super discount on more than 100 USD</h5>
+                    <p>Have you ever finally just write dummy info</p>
+                </div>
+                <a href="productlisting.html" class="btn btn-warning">Shop now</a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2 mb-4">
+                    <img src="images/Brand/logo-colored.png" alt="Brand Logo" style="width: 120px; margin-bottom: 15px;">
+                    <p class="text-muted small">Best information about the company goes here.</p>
+                    <div class="social-icons-footer"><i class="fab fa-linkedin"></i><i class="fab fa-youtube"></i><i class="fab fa-instagram"></i><i class="fab fa-facebook-f"></i><i class="fab fa-twitter"></i></div>
+                </div>
+                <div class="col-md-2 col-6 mb-4"><h6>About</h6><ul><li>About us</li><li>Find store</li><li>Categories</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Partnership</h6><ul><li>Become a Partner</li><li>Affiliates</li><li>Advertise</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Information</h6><ul><li>Help center</li><li>Money refund</li><li>Shipping</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Users</h6><ul><li>Login</li><li>Register</li><li>Settings</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Get App</h6><a href="#" class="d-block mb-2"><img src="images/Misc/market-button.png" class="app-img-placeholder" alt="App Store"></a><a href="#" class="d-block"><img src="images/Misc/Group.png" class="app-img-placeholder" alt="Google Play"></a></div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center pb-3"><p class="mb-0 text-muted small">© 2023 Ecommerce Website</p></div>
+        </div>
+    </footer>
+
+    <!-- MOBILE BOTTOM NAVIGATION (ADDED) -->
+    <nav class="mobile-bottom-nav">
+        <a href="index.html" class="nav-item-mobile">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item-mobile">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </a>
+        <a href="cart.html" class="nav-item-mobile">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" id="mobile-cart-badge">0</span>
+            <span>Cart</span>
+        </a>
+        <a href="profile.html" class="nav-item-mobile active">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function changeImg(img) { document.getElementById("mainImg").src = img.src; document.querySelectorAll('.thumb img').forEach(t => t.classList.remove('active')); img.classList.add('active'); }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const idParam = urlParams.get('id');
+        const nameParam = urlParams.get('name');
+
+        // DATABASE WITH RICH CONTENT (MODIFIED)
+        // I have added missing IDs (3) and corrected Names (Kitchen Mixer, Backpack, etc.) to match index.html
+        const productDatabase = {
+            "100": { 
+                name: "Apple iPhone 12 Pro Max 128GB", price: "998.00", img: "images/tech/image 33.png", 
+                type: "Smartphone", material: "Glass & Steel", design: "Modern", custom: "Storage", protection: "FaceID", warranty: "1 Year", 
+                description: "<h5>Super Retina XDR Display</h5><p>Experience the future of mobile technology with the iPhone 12 Pro Max. Features A14 Bionic chip and Pro camera system.</p>", 
+                reviews: "4.9/5 - Excellent camera quality.", shipping: "Free Express Shipping via DHL.", 
+                supplier: { name: "Apple Store Official", location: "California, USA", status: "Verified Manufacturer" } 
+            },
+            "101": { 
+                name: "Smart Watch Series 6", price: "998.00", img: "images/tech/8.png", 
+                type: "Wearable", material: "Aluminum", design: "Sport", custom: "Strap", protection: "Water Resistant", warranty: "1 Year", 
+                description: "Track your fitness goals with precision. Features blood oxygen monitoring, an always-on Retina display, and water resistance up to 50m. Perfect for active lifestyles." 
+            },
+            "102": { 
+                name: "Samsung Galaxy S21 Ultra 5G", price: "999.00", img: "images/tech/image 23.png", 
+                type: "Smartphone", material: "Gorilla Glass", design: "Premium", custom: "Color", protection: "Water Resistant", warranty: "2 Years", 
+                description: "The ultimate Galaxy experience. Featuring a 108MP camera with 100x Space Zoom, a dynamic AMOLED 2X display, and the fastest chip ever in a Galaxy." 
+            },
+            "103": { 
+                name: "Lenovo Thinkpad X1 Carbon", price: "12.50", img: "images/tech/image 34.png", 
+                type: "Laptop", material: "Carbon Fiber", design: "Business", custom: "RAM/SSD", protection: "Mil-Spec", warranty: "3 Years", 
+                description: "Business-class laptop with durable chassis." 
+            },
+            "104": { 
+                name: "GoPro Hero 9 Action Camera", price: "450.00", img: "images/tech/image 32.png", 
+                type: "Camera", material: "Rugged Plastic", design: "Action", custom: "Mounts", protection: "Waterproof", warranty: "1 Year", 
+                description: "Capture life's adventures in stunning 5K video." 
+            },
+            "105": { 
+                name: "Wireless Headphones", price: "89.00", img: "images/tech/image 86.png", 
+                type: "Audio", material: "Plastic/Leather", design: "Over-ear", custom: "EQ", protection: "None", warranty: "1 Year", 
+                description: "Premium over-ear headphones with ANC.", 
+                reviews: "4.4/5 - Good sound quality.", shipping: "Free Shipping.", 
+                supplier: { name: "SoundCore", location: "China", status: "Verified" } 
+            },
+            // FIX: ID 3 was missing, now added
+            "3": { 
+                name: "Smartphones", price: "199.00", img: "images/tech/image 23.png", 
+                type: "Smartphone", material: "Glass", design: "Modern", custom: "Storage", protection: "Screen Protector", warranty: "1 Year", 
+                description: "Latest Android smartphone with high refresh rate display.", 
+                reviews: "4.5/5 - Great value.", shipping: "Free Shipping.", 
+                supplier: { name: "MobileWorld", location: "China", status: "Verified" } 
+            },
+            // Existing IDs from index.html
+            "1": { name: "Smart Watch", price: "10.30", img: "images/tech/8.png", type: "Electronics", material: "Aluminum", design: "Sport", custom: "Strap", protection: "Water Resistant", warranty: "1 Year", description: "Feature Rich Smartwatch.", reviews: "4.9/5 - Top rated.", shipping: "Free Shipping.", supplier: { name: "TechZone", location: "Shenzhen, China", status: "Verified Manufacturer" } },
+            "2": { name: "GoPro Camera", price: "30.00", img: "images/tech/6.png", type: "Camera", material: "Plastic", design: "Action", custom: "Mounts", protection: "Waterproof", warranty: "2 Years", description: "Capture adventures.", reviews: "4.9/5 - Top rated action camera.", shipping: "Standard shipping 3-5 days ($5.00)", supplier: { name: "ActionPro", location: "USA", status: "Top Seller" } },
+            "4": { name: "Smart Watch", price: "150.00", img: "images/tech/8.png", type: "Electronics", material: "Metal", design: "Classic", custom: "Face", protection: "Dust Proof", warranty: "2 Years", description: "Premium smart watch.", reviews: "4.7/5.", shipping: "Free Shipping.", supplier: { name: "WatchWorld", location: "Japan", status: "Gold Supplier" } },
+            "5": { name: "Laptop", price: "500.00", img: "images/tech/image 34.png", type: "Laptop", material: "Carbon Fiber", design: "Business", custom: "RAM", protection: "Mil-Spec", warranty: "3 Years", description: "Business class laptop.", reviews: "5/5.", shipping: "Free Next Day Air.", supplier: { name: "Enterprise Tech", location: "Germany", status: "Authorized Dealer" } },
+            "6": { name: "Headphones", price: "8.99", img: "images/tech/image 86.png", type: "Audio", material: "Plastic", design: "Over-ear", custom: "Color", protection: "None", warranty: "1 Year", description: "Immersive Audio.", reviews: "Good sound quality.", shipping: "Standard.", supplier: { name: "SoundCore", location: "China", status: "Verified" } },
+
+            // FIX: Added missing Names to match index.html links exactly
+            "Soft Chair": { name: "Soft Chair", price: "120.00", img: "images/interior/1.png", type: "Furniture", material: "Velvet", design: "Modern", custom: "Color", protection: "Scratch Resistant", warranty: "1 Year", description: "Comfortable velvet chair.", reviews: "Comfy.", shipping: "Freight.", supplier: { name: "HomeStyle", location: "Italy", status: "Premium" } },
+            "Lamp": { name: "Lamp", price: "45.00", img: "images/interior/6.png", type: "Lighting", material: "Metal", design: "Minimalist", custom: "Bulb", protection: "None", warranty: "1 Year", description: "Adjustable desk lamp.", reviews: "Sleek.", shipping: "Standard.", supplier: { name: "LightWorks", location: "Germany", status: "Verified" } },
+            "Kitchen Dishes": { name: "Kitchen Dishes", price: "25.00", img: "images/interior/image 93.png", type: "Kitchenware", material: "Ceramic", design: "Classic", custom: "Pattern", protection: "None", warranty: "N/A", description: "Set of 6 ceramic plates.", reviews: "Durable.", shipping: "Standard.", supplier: { name: "HomeGoods", location: "China", status: "Verified" } },
+            "Mug": { name: "Mug", price: "19.00", img: "images/interior/3.png", type: "Kitchenware", material: "Ceramic", design: "Classic", custom: "Print", protection: "None", warranty: "N/A", description: "Classic ceramic mug.", reviews: "Sturdy.", shipping: "Standard.", supplier: { name: "HomeGoods", location: "China", status: "Verified" } },
+            "Kitchen Mixer": { name: "Kitchen Mixer", price: "100.00", img: "images/interior/9.png", type: "Appliance", material: "Metal", design: "Modern", custom: "Speed", protection: "None", warranty: "2 Years", description: "Heavy duty kitchen mixer.", reviews: "Powerful.", shipping: "Free.", supplier: { name: "KitchenPro", location: "USA", status: "Verified" } },
+            "Blenders": { name: "Blenders", price: "35.00", img: "images/interior/8.png", type: "Appliance", material: "Plastic/Glass", design: "Modern", custom: "Speed Settings", protection: "None", warranty: "1 Year", description: "High speed blender.", reviews: "Powerful.", shipping: "Free.", supplier: { name: "KitchenPro", location: "China", status: "Verified" } },
+            "Home Appliance": { name: "Home Appliance", price: "19.00", img: "images/interior/7.png", type: "Appliance", material: "Mixed", design: "Standard", custom: "None", protection: "Surge Protected", warranty: "1 Year", description: "Various home gadgets.", reviews: "Useful.", shipping: "Standard.", supplier: { name: "Global Home", location: "International", status: "Verified" } },
+            "Coffee Maker": { name: "Coffee Maker", price: "10.00", img: "images/interior/image 89.png", type: "Appliance", material: "Plastic", design: "Compact", custom: "Brew Strength", protection: "Auto-off", warranty: "1 Year", description: "Programmable coffee machine.", reviews: "Great coffee.", shipping: "Free.", supplier: { name: "CafeTech", location: "Italy", status: "Premium" } },
+            "Tablet": { name: "Tablets", price: "199.00", img: "images/tech/image 32.png", type: "Tablet", material: "Glass", design: "Modern", custom: "Storage", protection: "Screen", warranty: "1 Year", description: "High resolution tablet.", reviews: "Good display.", shipping: "Free.", supplier: { name: "TechTab", location: "China", status: "Verified" } },
+            "Speaker": { name: "Electric Kettle", price: "39.00", img: "images/tech/image 85.png", type: "Appliance", material: "Steel", design: "Modern", custom: "Color", protection: "Auto-off", warranty: "1 Year", description: "Fast boiling electric kettle.", reviews: "Quick.", shipping: "Standard.", supplier: { name: "KitchenEssentials", location: "China", status: "Verified" } },
+            "Gaming Device": { name: "Gaming devices", price: "99.00", img: "images/tech/image 29.png", type: "Gaming", material: "ABS Plastic", design: "RGB", custom: "Keys", protection: "None", warranty: "1 Year", description: "Keyboard and mouse set.", reviews: "Responsive.", shipping: "Free.", supplier: { name: "GamersHub", location: "China", status: "Verified" } },
+            "T-shirt for men": { name: "T-shirt for men", price: "10.30", img: "images/clothes/Bitmap.png", type: "Clothing", material: "100% Cotton", design: "Casual Fit", custom: "Print", protection: "None", warranty: "N/A", description: "Classic Cotton T-Shirt", reviews: "4.5/5", shipping: "Standard.", supplier: { name: "FashionHub", location: "Bangladesh", status: "Verified" } },
+            "Jeans for men": { name: "Jeans for men", price: "12.50", img: "images/clothes/Bitmap (2).png", type: "Clothing", material: "Denim", design: "Slim Fit", custom: "Hemming", protection: "None", warranty: "N/A", description: "Classic blue denim.", reviews: "Great quality.", shipping: "Standard $5.", supplier: { name: "DenimWorld", location: "Turkey", status: "Gold" } },
+            "Backpack": { name: "Backpack", price: "8.99", img: "images/clothes/image 26.png", type: "Accessory", material: "Polyester", design: "Travel", custom: "Patches", protection: "Water Resistant", warranty: "6 Months", description: "Durable travel backpack.", reviews: "Strong.", shipping: "Free.", supplier: { name: "TravelGear", location: "China", status: "Verified" } },
+            "Winter Jacket": { name: "Winter jacket", price: "30.00", img: "images/clothes/2 1.png", type: "Clothing", material: "Wool Blend", design: "Winter", custom: "Buttons", protection: "Wind Resistant", warranty: "N/A", description: "Warm winter coat.", reviews: "Very warm.", shipping: "Standard.", supplier: { name: "WinterStyle", location: "UK", status: "Verified" } },
+            "Mens coat": { name: "Mens coat", price: "35.00", img: "images/clothes/image 30.png", type: "Clothing", material: "Polyester", design: "Long Coat", custom: "None", protection: "Rainproof", warranty: "N/A", description: "Stylish mens coat.", reviews: "Looks great.", shipping: "Standard.", supplier: { name: "MensWear Co", location: "Italy", status: "Verified" } },
+            "Wallet": { name: "Wallet", price: "40.00", img: "images/clothes/image 24.png", type: "Accessory", material: "Leather", design: "Classic", custom: "None", protection: "None", warranty: "1 Year", description: "Genuine leather wallet.", reviews: "Elegant.", shipping: "Standard.", supplier: { name: "StyleAccess", location: "India", status: "Verified" } },
+            "Electric Kettle": { name: "Electric Kettle", price: "50.00", img: "images/tech/image 85.png", type: "Appliance", material: "Steel", design: "Modern", custom: "Color", protection: "Auto-off", warranty: "1 Year", description: "Rapid boil kettle.", reviews: "Fast.", shipping: "Standard.", supplier: { name: "KitchenEssentials", location: "China", status: "Verified" } }
+        };
+
+        let product = { name: "Product", price: "19.99", img: "images/clothes/Bitmap.png", type: "General", material: "Mixed", design: "Standard", custom: "None", protection: "None", warranty: "6 Months", description: "Details...", reviews: "No reviews.", shipping: "Standard.", supplier: { name: "Supplier", location: "Location", status: "Verified" } };
+
+        let matchedData = null;
+        if (idParam && productDatabase[idParam]) { matchedData = productDatabase[idParam]; }
+        else if (nameParam && productDatabase[nameParam]) { matchedData = productDatabase[nameParam]; }
+
+        if (matchedData) {
+            product = {...product, ...matchedData};
+            if(nameParam) product.name = decodeURIComponent(nameParam);
+        } else {
+            if(nameParam) product.name = decodeURIComponent(nameParam);
+        }
+
+        function parsePrice(priceStr) {
+            if (!priceStr) return 0;
+            return parseFloat(String(priceStr).replace(/[^0-9.]/g, ''));
+        }
+
+        document.getElementById('product-name').innerText = product.name;
+        document.getElementById('breadcrumb-name').innerText = product.name;
+        
+        const numPrice = parsePrice(product.price);
+        document.getElementById('product-price').innerText = '$' + numPrice.toFixed(2);
+        
+        const basePrice = numPrice || 0;
+        document.getElementById('price-tier2').innerText = '$' + (basePrice * 0.95).toFixed(2);
+        document.getElementById('price-tier3').innerText = '$' + (basePrice * 0.90).toFixed(2);
+
+        document.getElementById('mainImg').src = product.img;
+        
+        document.getElementById('prod-type').innerText = product.type;
+        document.getElementById('prod-material').innerText = product.material;
+        document.getElementById('prod-design').innerText = product.design;
+        document.getElementById('prod-custom').innerText = product.custom;
+        document.getElementById('prod-protection').innerText = product.protection;
+        document.getElementById('prod-warranty').innerText = product.warranty;
+        
+        document.getElementById('tab-desc').innerHTML = product.description;
+        document.getElementById('tab-reviews').innerHTML = product.reviews;
+        document.getElementById('tab-shipping').innerHTML = product.shipping;
+
+        // MODIFIED: Generate Attractive Seller Card
+        document.getElementById('tab-seller').innerHTML = `
+            <div class="seller-profile-card">
+                <div class="seller-avatar"><i class="fas fa-building"></i></div>
+                <div class="seller-name">${product.supplier.name}</div>
+                <span class="seller-badge"><i class="fas fa-check-circle me-1"></i>${product.supplier.status}</span>
+                <p class="text-muted mb-0 mt-2"><i class="fas fa-map-marker-alt me-1"></i> ${product.supplier.location}</p>
+                <div class="seller-stats">
+                    <div class="seller-stat">
+                        <h5>97%</h5>
+                        <small>Response Rate</small>
+                    </div>
+                    <div class="seller-stat">
+                        <h5>2.5 Hours</h5>
+                        <small>Response Time</small>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary flex-grow-1"><i class="fas fa-envelope me-2"></i>Contact Supplier</button>
+                <button class="btn btn-outline-secondary"><i class="fas fa-phone me-2"></i>Call Now</button>
+            </div>
+        `;
+
+        document.getElementById('supplier-name').innerText = product.supplier.name;
+        document.getElementById('supplier-location').innerText = product.supplier.location;
+        document.getElementById('supplier-status').innerText = product.supplier.status;
+
+        document.getElementById('thumb1').src = product.img;
+        document.getElementById('thumb2').src = product.img;
+        document.getElementById('thumb3').src = product.img;
+        document.getElementById('thumb4').src = product.img;
+        document.title = product.name;
+
+        function addToCart() {
+            let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+            const uniqueId = idParam || product.name; 
+            const cleanPriceVal = parsePrice(product.price);
+            
+            const existingIndex = cartItems.findIndex(item => item.id === uniqueId);
+            if (existingIndex > -1) { 
+                cartItems[existingIndex].qty += 1; 
+                alert("Updated quantity in cart!"); 
+            } else { 
+                cartItems.push({ 
+                    id: uniqueId, 
+                    name: product.name, 
+                    price: cleanPriceVal, 
+                    img: product.img, 
+                    qty: 1 
+                }); 
+                alert("Added to cart!"); 
+            }
+            localStorage.setItem('cart', JSON.stringify(cartItems));
+            updateMobileBadge(); // Update badge
+        }
+        
+        function addToWishlist() {
+            let laterItems = JSON.parse(localStorage.getItem('later')) || [];
+            const uniqueId = idParam || product.name;
+            const cleanPriceVal = parsePrice(product.price);
+
+            if (laterItems.some(item => item.id === uniqueId)) alert("Already in wishlist!");
+            else { 
+                laterItems.push({ 
+                    id: uniqueId, 
+                    name: product.name, 
+                    price: cleanPriceVal, 
+                    img: product.img 
+                }); 
+                localStorage.setItem('later', JSON.stringify(laterItems)); 
+                document.querySelector('.btn-wishlist i').className = "fas fa-heart text-danger"; 
+                alert("Added to wishlist!"); 
+            }
+        }
+
+        // ADDED: Update Mobile Badge Function
+        function updateMobileBadge() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('mobile-cart-badge').innerText = count;
+        }
+        updateMobileBadge(); // Call on load
+    </script>
+</body>
+</html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Listing - Ecommerce</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* ==================== GENERAL STYLES ==================== */
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        
+        /* --- HEADER --- */
+        .top-header { background: white; padding: 15px 0; border-bottom: 1px solid #eee; }
+        .logo { font-size: 22px; font-weight: bold; color: #0d6efd; text-decoration: none; }
+        .header-icons a { margin-left: 15px; text-decoration: none; color: #333 !important; font-size: 14px; display: inline-flex; align-items: center; }
+        .header-icons a i { margin-right: 5px; color: #333 !important; }
+        
+        .navbar { background: white; border-bottom: 1px solid #eee; }
+        .nav-link { color: #333; font-weight: 500; padding: 10px 15px; }
+
+        /* --- BREADCRUMB --- */
+        .breadcrumb-section { background: white; padding: 10px 0; border-bottom: 1px solid #eee; margin-bottom: 20px; }
+        .breadcrumb-section a { color: #0d6efd; text-decoration: none; font-size: 14px; }
+        .breadcrumb-section span { color: #999; margin: 0 8px; font-size: 14px; }
+        .breadcrumb-section .current { color: #333; font-weight: 600; }
+
+        /* --- SIDEBAR --- */
+        .sidebar-card { background: white; border-radius: 6px; margin-bottom: 25px; border: 1px solid #eee; overflow: hidden; }
+        
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; cursor: pointer; user-select: none;
+            border-bottom: 1px solid transparent; transition: background 0.2s;
+        }
+        .sidebar-header:hover { background: #f9f9f9; }
+        .sidebar-title { font-size: 16px; font-weight: 700; margin: 0; }
+        
+        .toggle-icon { font-size: 16px; color: #666; transition: transform 0.3s ease; transform: rotate(0deg); }
+        .sidebar-header.active .toggle-icon { transform: rotate(90deg); }
+        .sidebar-header.active { border-bottom: 1px solid #eee; }
+
+        .sidebar-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .sidebar-content.show { max-height: 1000px; }
+        .sidebar-content-inner { padding: 15px 20px; }
+
+        .category-list { list-style: none; padding: 0; margin: 0; }
+        .category-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f9f9f9; }
+        .category-list li:last-child { border-bottom: none; }
+        .category-list a { text-decoration: none; color: #666; font-size: 14px; }
+        .category-list a:hover { color: #0d6efd; }
+        .category-list span { color: #999; font-size: 12px; background: #f5f5f5; padding: 2px 6px; border-radius: 10px; }
+        
+        .form-check-input:checked { background-color: #0d6efd; border-color: #0d6efd; }
+        .form-check-label { font-size: 14px; color: #555; margin-left: 5px; cursor: pointer; }
+
+        .price-slider-container { position: relative; height: 6px; background: #e9ecef; border-radius: 5px; margin: 20px 0; }
+        .price-slider-track { position: absolute; left: 10%; right: 20%; background: #0d6efd; height: 100%; border-radius: 5px; }
+
+        /* --- PRODUCT AREA --- */
+        .product-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px 20px; border-radius: 6px; border: 1px solid #eee; }
+        .product-header h5 { margin: 0; font-weight: 600; }
+        .product-header h5 span { color: #666; font-weight: 400; font-size: 14px; margin-left: 5px; }
+        
+        .toolbar { display: flex; align-items: center; gap: 20px; }
+        .verified-check .form-check-input { width: 18px; height: 18px; margin-top: 0; }
+        .verified-check .form-check-label { font-weight: 600; color: #333; }
+
+        .view-toggle .btn { border: 1px solid #ddd; background: white; color: #666; }
+        .view-toggle .btn.active { background: #0d6efd; color: white; border-color: #0d6efd; }
+
+        #active-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .filter-tag { background: #eef2ff; color: #0d6efd; padding: 5px 12px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; border: 1px solid #dbeafe; }
+        .filter-tag .close-btn { margin-left: 8px; cursor: pointer; font-weight: bold; font-size: 14px; }
+
+        /* Product Grid View */
+        #product-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+        
+        .product-card { background: white; border-radius: 6px; border: 1px solid #eee; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; display: flex; flex-direction: column; position: relative; }
+        .product-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        
+        .btn-wishlist { position: absolute; top: 15px; right: 15px; z-index: 10; background: white; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15); cursor: pointer; transition: 0.2s; }
+        .btn-wishlist i { color: #ccc; font-size: 16px; transition: 0.2s; }
+        .btn-wishlist:hover { transform: scale(1.1); }
+        .btn-wishlist:hover i, .btn-wishlist.active i { color: #fa3434; }
+
+        .product-image-wrapper { position: relative; background: #f9f9f9; }
+        .product-card-img { width: 100%; height: 200px; object-fit: contain; padding: 15px; border-bottom: 1px solid #eee; }
+        
+        .product-card-body { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+        .product-card-title { font-size: 15px; color: #333; font-weight: 600; margin-bottom: 8px; }
+        
+        .price-section { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+        .current-price { color: #fa3434; font-size: 18px; font-weight: 700; }
+        .original-price { color: #999; font-size: 14px; text-decoration: line-through; }
+        .discount-percent { background: #ffebeb; color: #fa3434; font-size: 12px; padding: 2px 6px; border-radius: 4px; font-weight: 600; line-height: 1; }
+
+        .rating-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .rating-stars { color: #ffbd24; font-size: 12px; }
+        .rating-count { color: #999; font-size: 12px; }
+        .order-count { color: #999; font-size: 12px; margin-left: auto; }
+        .order-count i { margin-right: 4px; }
+
+        .shipping-badge { color: #28a745; font-size: 12px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+        .product-desc { font-size: 13px; color: #666; line-height: 1.4; margin-bottom: 15px; flex-grow: 1; }
+
+        .btn-view-detail { 
+            font-size: 12px; padding: 5px 12px; border-radius: 4px; 
+            display: inline-block; align-self: flex-start; margin-top: auto; 
+            background-color: #0d6efd; color: white; text-decoration: none; 
+            border: none; cursor: pointer;
+        }
+        .btn-view-detail:hover { background-color: #0b5ed7; color: white; }
+
+        /* List View Support */
+        #product-container.list-view { display: flex; flex-direction: column; gap: 15px; }
+        #product-container.list-view .product-card { flex-direction: row; }
+        #product-container.list-view .product-image-wrapper { width: 250px; flex-shrink: 0; border-right: 1px solid #eee; }
+        #product-container.list-view .product-card-img { width: 100%; height: 100%; border-bottom: none; }
+        #product-container.list-view .product-card-body { flex-grow: 1; }
+
+        /* --- FOOTER --- */
+        footer { background: white; padding: 50px 0; margin-top: 40px; border-top: 1px solid #eee; }
+        footer h6 { font-weight: 700; margin-bottom: 20px; color: #333; }
+        footer ul { list-style: none; padding: 0; }
+        footer ul li { margin-bottom: 10px; font-size: 14px; color: #666; cursor: pointer; }
+        footer ul li:hover { color: #0d6efd; }
+        .social-icons-footer i { font-size: 20px; color: #666; margin-right: 15px; cursor: pointer; }
+        .app-img-placeholder { width: 120px; height: 35px; background: #ddd; border-radius: 4px; display: inline-block; margin-bottom: 5px; }
+
+        /* Mobile Bottom Nav */
+        .mobile-bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; background: white;
+            border-top: 1px solid #eee; display: none; z-index: 1000; height: 60px;
+        }
+        .nav-item-mobile {
+            flex: 1; text-align: center; padding-top: 8px; color: #888; text-decoration: none; font-size: 12px; position: relative;
+        }
+        .nav-item-mobile.active { color: #0d6efd; }
+        .nav-item-mobile i { display: block; font-size: 20px; margin-bottom: 4px; }
+        .cart-badge {
+            position: absolute; top: 5px; right: 30%; background: #fa3434; color: white;
+            border-radius: 50%; padding: 2px 5px; font-size: 9px; font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            #product-container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .product-desc { display: none; }
+            .mobile-bottom-nav { display: flex; }
+            body { padding-bottom: 70px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="top-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-2 col-6"><a href="index.html"><img src="images/Brand/logo-colored.png" alt="Brand Logo" style="height: 40px;"></a></div>
+                <div class="col-md-6 d-none d-md-block"><div class="input-group"><input type="text" class="form-control" placeholder="Search"><select class="form-select" style="max-width:150px;"><option>All category</option></select><button class="btn btn-primary">Search</button></div></div>
+                <div class="col-md-4 col-6 text-end"><div class="header-icons"><a href="profile.html"><i class="fa fa-user"></i> Profile</a><a href="#"><i class="fa fa-envelope"></i> Message</a><a href="#"><i class="fa fa-box"></i> Orders</a><a href="cart.html"><i class="fa fa-shopping-cart"></i> Cart</a></div></div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- SECONDARY NAV -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container d-flex justify-content-between">
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">☰ All category</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Automobiles</a></li>
+                        <li><a class="dropdown-item" href="#">Clothes</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="#">Hot offers</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Gift boxes</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Projects</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Help</a></li>
+            </ul>
+            <div class="d-flex align-items-center">
+                <div class="dropdown me-3"><a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">English, USD</a><ul class="dropdown-menu"><li><a class="dropdown-item" href="#">English</a></li></ul></div>
+                <div class="dropdown"><a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Ship to 🇩🇪</a><ul class="dropdown-menu"><li><a class="dropdown-item" href="#">Germany</a></li></ul></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb-section">
+        <div class="container">
+            <a href="index.html">Home</a> <span>></span>
+            <a href="productlisting.html">Clothing</a> <span>></span>
+            <a href="productlisting.html">Men's Wear</a> <span>></span>
+            <span class="current">Summer Clothing</span>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="container">
+        <div class="row">
+            <!-- SIDEBAR -->
+            <div class="col-md-3">
+                <!-- Categories -->
+                <div class="sidebar-card">
+                    <div class="sidebar-header active" onclick="toggleSidebar(this)">
+                        <span class="sidebar-title">Categories</span>
+                        <i class="fas fa-caret-right toggle-icon"></i>
+                    </div>
+                    <div class="sidebar-content show">
+                        <div class="sidebar-content-inner">
+                            <ul class="category-list">
+                                <li><a href="#">Mobile accessory</a> <span>12,911</span></li>
+                                <li><a href="#">Electronics</a> <span>10,502</span></li>
+                                <li><a href="#">Smartphones</a> <span>8,210</span></li>
+                                <li><a href="#">Modern tech</a> <span>6,400</span></li>
+                                <li><a href="#" class="text-primary">See all</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brands -->
+                <div class="sidebar-card">
+                    <div class="sidebar-header active" onclick="toggleSidebar(this)">
+                        <span class="sidebar-title">Brands</span>
+                        <i class="fas fa-caret-right toggle-icon"></i>
+                    </div>
+                    <div class="sidebar-content show">
+                        <div class="sidebar-content-inner">
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="brand" type="checkbox" id="brandApple" value="Apple"><label class="form-check-label" for="brandApple">Apple</label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="brand" type="checkbox" id="brandSamsung" value="Samsung"><label class="form-check-label" for="brandSamsung">Samsung</label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="brand" type="checkbox" id="brandLenovo" value="Lenovo"><label class="form-check-label" for="brandLenovo">Lenovo</label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="brand" type="checkbox" id="brandPocco" value="Pocco"><label class="form-check-label" for="brandPocco">Pocco</label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="brand" type="checkbox" id="brandHuawei" value="Huawei"><label class="form-check-label" for="brandHuawei">Huawei</label></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="sidebar-card">
+                    <div class="sidebar-header active" onclick="toggleSidebar(this)">
+                        <span class="sidebar-title">Features</span>
+                        <i class="fas fa-caret-right toggle-icon"></i>
+                    </div>
+                    <div class="sidebar-content show">
+                        <div class="sidebar-content-inner">
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="feature" type="checkbox" id="featMetallic" value="Metallic"><label class="form-check-label" for="featMetallic">Metallic</label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="feature" type="checkbox" id="featPlastic" value="Plastic cover"><label class="form-check-label" for="featPlastic">Plastic cover</label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="feature" type="checkbox" id="feat8gb" value="8GB RAM"><label class="form-check-label" for="feat8gb">8GB RAM</label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="feature" type="checkbox" id="featSuper" value="Super power"><label class="form-check-label" for="featSuper">Super power</label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="feature" type="checkbox" id="featLarge" value="Large Memory"><label class="form-check-label" for="featLarge">Large Memory</label></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Range -->
+                <div class="sidebar-card">
+                    <div class="sidebar-header" onclick="toggleSidebar(this)">
+                        <span class="sidebar-title">Price Range</span>
+                        <i class="fas fa-caret-right toggle-icon"></i>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="sidebar-content-inner">
+                            <div class="price-slider-container"><div class="price-slider-track"></div></div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-6"><label class="small text-muted d-block mb-1">Min</label><input type="number" id="minPrice" class="form-control form-control-sm" placeholder="0"></div>
+                                <div class="col-6"><label class="small text-muted d-block mb-1">Max</label><input type="number" id="maxPrice" class="form-control form-control-sm" placeholder="1000"></div>
+                            </div>
+                            <button id="applyPriceFilter" class="btn btn-primary btn-sm w-100">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Condition -->
+                <div class="sidebar-card">
+                    <div class="sidebar-header" onclick="toggleSidebar(this)">
+                        <span class="sidebar-title">Condition</span>
+                        <i class="fas fa-caret-right toggle-icon"></i>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="sidebar-content-inner">
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="condition" type="checkbox" id="condAny" value="Any"><label class="form-check-label" for="condAny">Any</label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="condition" type="checkbox" id="condRefurb" value="Refurbished"><label class="form-check-label" for="condRefurb">Refurbished</label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="condition" type="checkbox" id="condBrandNew" value="Brand New"><label class="form-check-label" for="condBrandNew">Brand New</label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="condition" type="checkbox" id="condOld" value="Old items"><label class="form-check-label" for="condOld">Old items</label></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rating -->
+                <div class="sidebar-card">
+                    <div class="sidebar-header" onclick="toggleSidebar(this)">
+                        <span class="sidebar-title">Rating</span>
+                        <i class="fas fa-caret-right toggle-icon"></i>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="sidebar-content-inner">
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="rating" type="checkbox" id="rating5" value="5"><label class="form-check-label text-warning" for="rating5"><i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i></label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="rating" type="checkbox" id="rating4" value="4"><label class="form-check-label text-warning" for="rating4"><i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></label></div>
+                            <div class="form-check mb-2"><input class="form-check-input filter-checkbox" data-filter-type="rating" type="checkbox" id="rating3" value="3"><label class="form-check-label text-warning" for="rating3"><i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i> <i class="far fa-star"></i></label></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCTS -->
+            <div class="col-md-9">
+                <div class="product-header">
+                    <div><h5>Mobile accessory <span id="result-count">(6 results)</span></h5></div>
+                    <div class="toolbar">
+                        <div class="form-check verified-check"><input class="form-check-input" type="checkbox" id="verifiedToggle"><label class="form-check-label" for="verifiedToggle"><i class="fas fa-check-circle text-success"></i> Verified only</label></div>
+                        <div class="form-check verified-check"><input class="form-check-input" type="checkbox" id="featuredToggle"><label class="form-check-label" for="featuredToggle"><i class="fas fa-star text-warning"></i> Featured</label></div>
+                        <div class="btn-group view-toggle">
+                            <button class="btn btn-sm" onclick="setView('list')"><i class="fas fa-list"></i></button>
+                            <button class="btn btn-sm active" onclick="setView('grid')"><i class="fas fa-th"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="active-filters"></div>
+
+                <div id="product-container">
+                    <!-- Product 1 -->
+                    <div class="product-card" data-brand="Apple" data-features="Metallic, 8GB RAM" data-condition="Brand New" data-rating="5" data-verified="true" data-featured="true" data-price="998.00">
+                        <button class="btn-wishlist" onclick="toggleWishlist(this)"><i class="far fa-heart"></i></button>
+                        <div class="product-image-wrapper"><img src="images/tech/image 33.png" class="product-card-img" alt="Apple iPhone 12 Pro Max"></div>
+                        <div class="product-card-body">
+                            <h6 class="product-card-title">Apple iPhone 12 Pro Max 128GB</h6>
+                            <div class="price-section"><span class="current-price">$998.00</span><span class="original-price">$1,298.00</span><span class="discount-percent">-23%</span></div>
+                            <div class="rating-row"><div class="rating-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span class="rating-count">(847)</span><span class="order-count"><i class="fas fa-shopping-bag"></i> 928 orders</span></div>
+                            <div class="shipping-badge"><i class="fas fa-truck"></i> Free Shipping</div>
+                            <p class="product-desc">High quality smartphone with A14 Bionic chip.</p>
+                            <a href="productdetail.html?id=100" class="btn-view-detail">View Details</a>
+                        </div>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="product-card" data-brand="Samsung" data-features="Plastic cover, Super power" data-condition="Refurbished" data-rating="4" data-verified="true" data-featured="false" data-price="998.00">
+                        <button class="btn-wishlist" onclick="toggleWishlist(this)"><i class="far fa-heart"></i></button>
+                        <div class="product-image-wrapper"><img src="images/tech/8.png" class="product-card-img" alt="Smart Watch Series 6"></div>
+                        <div class="product-card-body">
+                            <h6 class="product-card-title">Smart Watch Series 6</h6>
+                            <div class="price-section"><span class="current-price">$998.00</span><span class="original-price">$1,100.00</span><span class="discount-percent">-9%</span></div>
+                            <div class="rating-row"><div class="rating-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i></div><span class="rating-count">(284)</span><span class="order-count"><i class="fas fa-shopping-bag"></i> 512 orders</span></div>
+                            <div class="shipping-badge"><i class="fas fa-truck"></i> Free Shipping</div>
+                            <p class="product-desc">Track your fitness goals with the latest smart watch.</p>
+                            <a href="productdetail.html?id=101" class="btn-view-detail">View Details</a>
+                        </div>
+                    </div>
+
+                    <!-- Product 3 -->
+                    <div class="product-card" data-brand="Samsung" data-features="Metallic, Large Memory" data-condition="Brand New" data-rating="5" data-verified="false" data-featured="true" data-price="999.00">
+                        <button class="btn-wishlist" onclick="toggleWishlist(this)"><i class="far fa-heart"></i></button>
+                        <div class="product-image-wrapper"><img src="images/tech/image 23.png" class="product-card-img" alt="Samsung Galaxy S21 Ultra"></div>
+                        <div class="product-card-body">
+                            <h6 class="product-card-title">Samsung Galaxy S21 Ultra 5G</h6>
+                            <div class="price-section"><span class="current-price">$999.00</span><span class="original-price">$1,199.00</span><span class="discount-percent">-17%</span></div>
+                            <div class="rating-row"><div class="rating-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span class="rating-count">(1.2k)</span><span class="order-count"><i class="fas fa-shopping-bag"></i> 2.1k orders</span></div>
+                            <div class="shipping-badge"><i class="fas fa-truck"></i> Free Shipping</div>
+                            <p class="product-desc">Experience 100x Space Zoom and 8K Video recording.</p>
+                            <a href="productdetail.html?id=102" class="btn-view-detail">View Details</a>
+                        </div>
+                    </div>
+
+                    <!-- Product 4 -->
+                    <div class="product-card" data-brand="Lenovo" data-features="Plastic cover" data-condition="Old items" data-rating="3" data-verified="true" data-featured="false" data-price="12.50">
+                        <button class="btn-wishlist" onclick="toggleWishlist(this)"><i class="far fa-heart"></i></button>
+                        <div class="product-image-wrapper"><img src="images/tech/image 34.png" class="product-card-img" alt="Lenovo Thinkpad X1 Carbon"></div>
+                        <div class="product-card-body">
+                            <h6 class="product-card-title">Lenovo Thinkpad X1 Carbon</h6>
+                            <div class="price-section"><span class="current-price">$12.50</span><span class="original-price">$15.00</span><span class="discount-percent">-17%</span></div>
+                            <div class="rating-row"><div class="rating-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i></div><span class="rating-count">(112)</span><span class="order-count"><i class="fas fa-shopping-bag"></i> 85 orders</span></div>
+                            <div class="shipping-badge text-muted"><i class="fas fa-truck"></i> Shipping: $5.00</div>
+                            <p class="product-desc">Business-class laptop with durable chassis.</p>
+                            <a href="productdetail.html?id=103" class="btn-view-detail">View Details</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 5 -->
+                    <div class="product-card" data-brand="Pocco" data-features="Super power, Large Memory" data-condition="Refurbished" data-rating="4" data-verified="false" data-featured="false" data-price="450.00">
+                        <button class="btn-wishlist" onclick="toggleWishlist(this)"><i class="far fa-heart"></i></button>
+                        <div class="product-image-wrapper"><img src="images/tech/image 32.png" class="product-card-img" alt="GoPro Hero 9 Action Camera"></div>
+                        <div class="product-card-body">
+                            <h6 class="product-card-title">GoPro Hero 9 Action Camera</h6>
+                            <div class="price-section"><span class="current-price">$450.00</span><span class="original-price">$550.00</span><span class="discount-percent">-18%</span></div>
+                            <div class="rating-row"><div class="rating-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i></div><span class="rating-count">(320)</span><span class="order-count"><i class="fas fa-shopping-bag"></i> 140 orders</span></div>
+                            <div class="shipping-badge"><i class="fas fa-truck"></i> Free Shipping</div>
+                            <p class="product-desc">Capture life's adventures in stunning 5K video.</p>
+                            <a href="productdetail.html?id=104" class="btn-view-detail">View Details</a>
+                        </div>
+                    </div>
+
+                    <!-- Product 6 -->
+                    <div class="product-card" data-brand="Huawei" data-features="8GB RAM" data-condition="Brand New" data-rating="5" data-verified="true" data-featured="true" data-price="89.00">
+                        <button class="btn-wishlist" onclick="toggleWishlist(this)"><i class="far fa-heart"></i></button>
+                        <div class="product-image-wrapper"><img src="images/tech/image 86.png" class="product-card-img" alt="Wireless Headphones"></div>
+                        <div class="product-card-body">
+                            <h6 class="product-card-title">Wireless Headphones</h6>
+                            <div class="price-section"><span class="current-price">$89.00</span><span class="original-price">$120.00</span><span class="discount-percent">-26%</span></div>
+                            <div class="rating-row"><div class="rating-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><span class="rating-count">(589)</span><span class="order-count"><i class="fas fa-shopping-bag"></i> 700 orders</span></div>
+                            <div class="shipping-badge"><i class="fas fa-truck"></i> Free Shipping</div>
+                            <p class="product-desc">Premium over-ear headphones with ANC.</p>
+                            <a href="productdetail.html?id=105" class="btn-view-detail">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <nav class="d-flex justify-content-center mt-5">
+                    <ul class="pagination">
+                        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+   <!-- NEWSLETTER SECTION -->
+            <section class="newsletter py-5 bg-light">
+                <div class="container text-center">
+                    <h4>Subscribe to our newsletter</h4>
+                    <p>Get daily news on upcoming offers from many suppliers all over the world</p>
+                    <div class="d-flex justify-content-center align-items-center mt-3">
+                        <input type="email" placeholder="Email" class="form-control" style="max-width: 300px; height: 40px;">
+                        <button class="btn btn-primary ms-2" style="height: 40px;">Subscribe</button>
+                    </div>
+                </div>
+            </section>
+
+   
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2 mb-4">
+                    <img src="images/Brand/logo-colored.png" alt="Brand Logo" style="width: 120px; margin-bottom: 15px;">
+                    <p class="text-muted small">Best information about the company goes here.</p>
+                    <div class="social-icons-footer"><i class="fab fa-linkedin"></i><i class="fab fa-youtube"></i><i class="fab fa-instagram"></i><i class="fab fa-facebook-f"></i><i class="fab fa-twitter"></i></div>
+                </div>
+                <div class="col-md-2 col-6 mb-4"><h6>About</h6><ul><li>About us</li><li>Find store</li><li>Categories</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Partnership</h6><ul><li>Become a Partner</li><li>Affiliates</li><li>Advertise</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Information</h6><ul><li>Help center</li><li>Money refund</li><li>Shipping</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Users</h6><ul><li>Login</li><li>Register</li><li>Settings</li></ul></div>
+                <div class="col-md-2 col-6 mb-4"><h6>Get App</h6><a href="#" class="d-block mb-2"><img src="images/Misc/market-button.png" class="app-img-placeholder" alt="App Store"></a><a href="#" class="d-block"><img src="images/Misc/Group.png" class="app-img-placeholder" alt="Google Play"></a></div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center pb-3"><p class="mb-0 text-muted small">© 2023 Ecommerce Website</p></div>
+        </div>
+    </footer>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="mobile-bottom-nav">
+        <a href="index.html" class="nav-item-mobile">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item-mobile">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </a>
+        <a href="cart.html" class="nav-item-mobile">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" id="mobile-cart-badge">0</span>
+            <span>Cart</span>
+        </a>
+        <a href="profile.html" class="nav-item-mobile">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- Sidebar Toggle (Wedge Operator) ---
+        function toggleSidebar(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            header.classList.toggle('active');
+            content.classList.toggle('show');
+        }
+
+        // --- View Toggle ---
+        function setView(viewType) {
+            const container = document.getElementById('product-container');
+            const buttons = document.querySelectorAll('.view-toggle .btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            if (viewType === 'list') { container.classList.add('list-view'); buttons[0].classList.add('active'); } 
+            else { container.classList.remove('list-view'); buttons[1].classList.add('active'); }
+        }
+
+        // --- Wishlist Toggle with LocalStorage ---
+        function toggleWishlist(btn) { 
+            const icon = btn.querySelector('i'); 
+            const card = btn.closest('.product-card');
+            
+            // Extract Data
+            const link = card.querySelector('.btn-view-detail').href;
+            const urlParams = new URLSearchParams(link.split('?')[1]);
+            const id = urlParams.get('id');
+            const name = card.querySelector('.product-card-title').innerText;
+            const img = card.querySelector('.product-card-img').src;
+            const priceText = card.querySelector('.current-price').innerText;
+            const price = parseFloat(priceText.replace('$', ''));
+
+            if (!id) return;
+
+            // Get current wishlist
+            let laterItems = JSON.parse(localStorage.getItem('later')) || [];
+            
+            // Check if exists
+            const existingIndex = laterItems.findIndex(item => item.id == id);
+
+            if (existingIndex > -1) {
+                // Remove
+                laterItems.splice(existingIndex, 1);
+                icon.classList.remove('fas', 'text-danger');
+                icon.classList.add('far');
+            } else {
+                // Add
+                laterItems.push({ id, name, img, price });
+                icon.classList.remove('far');
+                icon.classList.add('fas', 'text-danger');
+                alert("Added to wishlist!");
+            }
+
+            localStorage.setItem('later', JSON.stringify(laterItems));
+        }
+
+        // --- Check Wishlist on Load ---
+        function checkWishlistStatus() {
+            const laterItems = JSON.parse(localStorage.getItem('later')) || [];
+            document.querySelectorAll('.product-card').forEach(card => {
+                const link = card.querySelector('.btn-view-detail').href;
+                const urlParams = new URLSearchParams(link.split('?')[1]);
+                const id = urlParams.get('id');
+                
+                if (id && laterItems.some(item => item.id == id)) {
+                    const btn = card.querySelector('.btn-wishlist');
+                    const icon = btn.querySelector('i');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas', 'text-danger');
+                }
+            });
+        }
+
+        // Run on page load
+        checkWishlistStatus();
+        
+        // Update Mobile Badge
+        function updateMobileBadge() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('mobile-cart-badge').innerText = count;
+        }
+        updateMobileBadge();
+
+        // --- Filter State & Logic ---
+        const filterState = { brands: [], features: [], conditions: [], ratings: [], minPrice: 0, maxPrice: Infinity, verified: false, featured: false };
+        
+        function updateFilterTags() { 
+            const container = document.getElementById('active-filters'); 
+            container.innerHTML = ''; 
+            
+            function createTag(value, type, label) { 
+                const tag = document.createElement('div'); 
+                tag.className = 'filter-tag'; 
+                tag.innerHTML = `${label}: ${value} <span class="close-btn" data-type="${type}" data-value="${value}">&times;</span>`; 
+                container.appendChild(tag); 
+            } 
+            
+            filterState.brands.forEach(v => createTag(v, 'brand', 'Brand')); 
+            filterState.features.forEach(v => createTag(v, 'feature', 'Feature')); 
+            filterState.conditions.forEach(v => createTag(v, 'condition', 'Condition')); 
+            filterState.ratings.forEach(v => createTag(v, 'rating', 'Rating')); 
+            
+            container.querySelectorAll('.close-btn').forEach(btn => { 
+                btn.addEventListener('click', function() { 
+                    const type = this.getAttribute('data-type'); 
+                    const value = this.getAttribute('data-value'); 
+                    const checkbox = document.querySelector(`input[type="checkbox"][data-filter-type="${type}"][value="${value}"]`);
+                    if(checkbox) checkbox.checked = false; 
+                    if(type === 'brand') filterState.brands = filterState.brands.filter(i => i !== value); 
+                    if(type === 'feature') filterState.features = filterState.features.filter(i => i !== value); 
+                    if(type === 'condition') filterState.conditions = filterState.conditions.filter(i => i !== value); 
+                    if(type === 'rating') filterState.ratings = filterState.ratings.filter(i => i !== value); 
+                    applyFilters(); 
+                }); 
+            }); 
+        }
+        
+        function applyFilters() { 
+            const products = document.querySelectorAll('.product-card'); 
+            let visibleCount = 0; 
+            products.forEach(product => { 
+                let show = true; 
+                if (filterState.brands.length > 0) { const brand = product.getAttribute('data-brand'); if (!filterState.brands.includes(brand)) show = false; } 
+                if (show && filterState.features.length > 0) { const features = product.getAttribute('data-features').split(', '); const hasAny = filterState.features.some(f => features.includes(f)); if (!hasAny) show = false; } 
+                if (show && filterState.conditions.length > 0) { const condition = product.getAttribute('data-condition'); if (!filterState.conditions.includes(condition)) show = false; } 
+                if (show && filterState.ratings.length > 0) { const rating = parseInt(product.getAttribute('data-rating')); const hasRating = filterState.ratings.some(r => rating >= parseInt(r)); if (!hasRating) show = false; } 
+                if (show && filterState.verified) { const isVerified = product.getAttribute('data-verified') === 'true'; if (!isVerified) show = false; } 
+                if (show && filterState.featured) { const isFeatured = product.getAttribute('data-featured') === 'true'; if (!isFeatured) show = false; } 
+                if (show) { const price = parseFloat(product.getAttribute('data-price')); if (price < filterState.minPrice || price > filterState.maxPrice) show = false; } 
+                product.style.display = show ? '' : 'none'; 
+                if (show) visibleCount++; 
+            }); 
+            document.getElementById('result-count').textContent = `(${visibleCount} results)`; 
+            updateFilterTags(); 
+        }
+        
+        document.querySelectorAll('.filter-checkbox').forEach(checkbox => { 
+            checkbox.addEventListener('change', function() { 
+                const type = this.getAttribute('data-filter-type'); 
+                const value = this.value; 
+                if (type === 'brand') { if (this.checked) filterState.brands.push(value); else filterState.brands = filterState.brands.filter(i => i !== value); } 
+                else if (type === 'feature') { if (this.checked) filterState.features.push(value); else filterState.features = filterState.features.filter(i => i !== value); } 
+                else if (type === 'condition') { if (this.checked) filterState.conditions.push(value); else filterState.conditions = filterState.conditions.filter(i => i !== value); } 
+                else if (type === 'rating') { if (this.checked) filterState.ratings.push(value); else filterState.ratings = filterState.ratings.filter(i => i !== value); } 
+                applyFilters(); 
+            }); 
+        });
+        
+        document.getElementById('verifiedToggle').addEventListener('change', function() { filterState.verified = this.checked; applyFilters(); });
+        document.getElementById('featuredToggle').addEventListener('change', function() { filterState.featured = this.checked; applyFilters(); });
+        document.getElementById('applyPriceFilter').addEventListener('click', function() { const minInput = document.getElementById('minPrice').value; const maxInput = document.getElementById('maxPrice').value; filterState.minPrice = parseFloat(minInput) || 0; filterState.maxPrice = parseFloat(maxInput) || Infinity; applyFilters(); });
+    </script>
+</body>
+</html>
